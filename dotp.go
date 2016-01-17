@@ -1,4 +1,4 @@
-package main
+package dotp
 
 import (
 	"crypto/sha512"
@@ -44,8 +44,7 @@ type Challenge struct {
 func DeriveKeyPair(input string) (pubKey, privateKey [32]byte) {
 	privateKey = *new([32]byte)
 	pubKey = *new([32]byte)
-	hash := sha512.New()
-	privateKeySlice := hash.Sum([]byte(input))
+	privateKeySlice := sha512.Sum512([]byte(input))
 	copy(privateKey[:], privateKeySlice[0:32])
 	curve25519.ScalarBaseMult(&pubKey, &privateKey)
 	return
@@ -81,8 +80,7 @@ func (c *Challenge) Encrypt(otp []byte, expiresAt int64, rand io.Reader) error {
 	if err != nil {
 		return errors.New("Unable to create nonce from rand")
 	}
-	c.box = make([]byte, 0, box.Overhead+len(otp))
-	c.box = box.Seal(c.box, c.otp, &c.nonce, &c.recipientPublicKey, &c.serverPrivateKey)
+	c.box = box.Seal(nil, c.otp, &c.nonce, &c.recipientPublicKey, &c.serverPrivateKey)
 	return nil
 }
 
