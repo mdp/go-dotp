@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/big"
 	"os"
@@ -51,21 +52,33 @@ application.`,
 		if len(ServerSeed) < 1 {
 			return errors.New("Must provide a server seed")
 		}
-		if len(PublicID) < 1 {
-			return errors.New("Must provide the PublicID of the recipient")
+		publicID, err := getPublicID()
+		if err != nil {
+			return err
 		}
 		_, privateKey := dotp.DeriveKeyPair(ServerSeed)
-		challenge, _ := dotp.CreateChallenge(&privateKey, PublicID)
+		challenge, err := dotp.CreateChallenge(&privateKey, publicID)
+		if err != nil {
+			return err
+		}
 		challenge.Encrypt([]byte(otp), time.Now().Unix()+int64(ExpiresIn), rand.Reader)
-		fmt.Printf("%v\n\n", challenge.Serialize())
 		qrterminal.Generate(challenge.Serialize(), qrterminal.L, os.Stdout)
 		auth(otp)
 		return nil
 	},
 }
 
+func getPublicID() (string, error) {
+	home := os.Getenv("HOME")
+	publicIDbytes, err := ioutil.ReadFile(home + "/.dotp_id")
+	if err != nil {
+		return "", err
+	}
+	publicID := strings.TrimSpace(string(publicIDbytes))
+	return publicID, nil
+}
+
 func auth(otp string) {
-	fmt.Printf("OTP: %v\n", otp)
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter OTP: ")
 	text, _ := reader.ReadString('\n')

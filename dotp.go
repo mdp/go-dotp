@@ -4,8 +4,9 @@ import (
 	"crypto/sha512"
 	"errors"
 	"io"
+	"strings"
 
-	b58 "github.com/jbenet/go-base58"
+	b58 "github.com/btcsuite/btcutil/base58"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/nacl/box"
 )
@@ -61,7 +62,11 @@ func GetPublicID(publicKey *[32]byte) string {
 
 //GetPublicKeyFromPublicID is what it is
 func GetPublicKeyFromPublicID(publicID string) (*[32]byte, error) {
+	publicID = strings.TrimSpace(publicID)
 	publicKeyDecoded := b58.Decode(publicID)
+	if len(publicKeyDecoded) != 33 {
+		return nil, errors.New("Bad PublicID: Incorrect length")
+	}
 	publicKey := new([32]byte)
 	copy(publicKey[:], publicKeyDecoded[0:32])
 	publicKeyHash := sha512.Sum512(publicKey[:])
