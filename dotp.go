@@ -11,34 +11,18 @@ import (
 	"golang.org/x/crypto/nacl/box"
 )
 
-func expiresToBytes(i int64) [5]byte {
-	arr := new([5]byte)
-	arr[0] = byte(i >> 32)
-	arr[1] = byte((i >> 24) & 255)
-	arr[2] = byte((i >> 16) & 255)
-	arr[3] = byte((i >> 8) & 255)
-	arr[4] = byte(i & 255)
-	return *arr
-}
-
-func bytesToExpires(t [5]byte) (i int64) {
-	i = (int64(t[0]) << 32) |
-		(int64(t[1]) << 24) |
-		(int64(t[2]) << 16) |
-		(int64(t[3]) << 8) |
-		int64(t[4])
-	return i
-}
-
 // Challenge - our Challenge containing the OTP
 type Challenge struct {
-	nonce              [24]byte
 	recipientPublicKey [32]byte
 	serverPrivateKey   [32]byte
 	serverPublicKey    [32]byte
 	otp                []byte
-	expiresAt          int64
 	box                []byte
+}
+
+// RandomKeyPair creates a crypto secure random keypair
+func RandomKeyPair(r io.Reader) (pubKey, privateKey *[32]byte, err error) {
+	return box.GenerateKey(r)
 }
 
 // DeriveKeyPair takes a utf8 string, returns base64 32byte string
@@ -77,26 +61,18 @@ func GetPublicKeyFromPublicID(publicID string) (*[32]byte, error) {
 }
 
 // Encrypt the OTP into the challenge
-func (c *Challenge) Encrypt(otp []byte, expiresAt int64, rand io.Reader) error {
+func (c *Challenge) Encrypt(otp []byte, rand io.Reader) error {
 	c.otp = otp
-	c.expiresAt = expiresAt
-	c.nonce = *new([24]byte)
-	_, err := io.ReadFull(rand, c.nonce[:])
-	if err != nil {
-		return errors.New("Unable to create nonce from rand")
-	}
-	c.box = box.Seal(nil, c.otp, &c.nonce, &c.recipientPublicKey, &c.serverPrivateKey)
+	nonce := new([24]byte) //0 nonce
+	c.box = box.Seal(nil, c.otp, nonce, &c.recipientPublicKey, &c.serverPrivateKey)
 	return nil
 }
 
 // Serialize the challenge into a base58 string
 func (c *Challenge) Serialize() string {
-	challenge := make([]byte, 0, 1+5+1+24+32+len(c.box))
-	challenge = append(challenge, byte(0)) //Version
-	fiveByteTimestamp := expiresToBytes(c.expiresAt)
-	challenge = append(challenge, fiveByteTimestamp[:]...) //Timestamp
+	challenge := make([]byte, 0, 1+1+32+len(c.box))
+	challenge = append(challenge, byte(0))                 //Version
 	challenge = append(challenge, c.recipientPublicKey[0]) //First byte of recipient key
-	challenge = append(challenge, c.nonce[:]...)           //Nonce
 	challenge = append(challenge, c.serverPublicKey[:]...) //Public Key for the server
 	challenge = append(challenge, c.box...)                //Ciphertext
 	return b58.Encode(challenge)

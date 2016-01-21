@@ -36,8 +36,6 @@ func init() {
 	// Cobra supports Persistent Flags which if defined here will be global for your application
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dotp-cli.yaml)")
-	RootCmd.PersistentFlags().StringVar(&ServerSeed, "serverseed", "", "Server side secret, used to build the servers keypair")
-	RootCmd.PersistentFlags().IntVar(&ExpiresIn, "expiresin", 300, "Expiration in seconds")
 	RootCmd.PersistentFlags().StringVar(&PublicID, "pubid", "", "PublicID of the recipient")
 
 }

@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/mdp/go-dotp"
 	"github.com/mdp/qrterminal"
@@ -40,30 +38,29 @@ func randString(n int, numericOnly bool) string {
 // sshauthCmd respresents the sshauth command
 var sshauthCmd = &cobra.Command{
 	Use:   "sshauth",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a Cli library for Go that empowers applications. This
-application is a tool to generate the needed files to quickly create a Cobra
-application.`,
+	Short: "TwoFactor auth for SSH",
+	Long: `This allows you to quickly implement two factor authentication in ssh.
+	Use the ForceCommand in sshd_config to run this program upon login. User will
+	then be presented with a QR Code challenge to authenticate. Assumes the user has
+	a dotp public ID and that it is written to '$HOME/.dotp_id'`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		otp := randString(6, true)
-		if len(ServerSeed) < 1 {
-			return errors.New("Must provide a server seed")
-		}
 		publicID, err := getPublicID()
 		if err != nil {
 			return err
 		}
-		_, privateKey := dotp.DeriveKeyPair(ServerSeed)
-		challenge, err := dotp.CreateChallenge(&privateKey, publicID)
+		_, privateKey, err := dotp.RandomKeyPair(rand.Reader)
 		if err != nil {
 			return err
 		}
-		challenge.Encrypt([]byte(otp), time.Now().Unix()+int64(ExpiresIn), rand.Reader)
+		challenge, err := dotp.CreateChallenge(privateKey, publicID)
+		if err != nil {
+			return err
+		}
+		challenge.Encrypt([]byte(otp), rand.Reader)
+		fmt.Printf("Challenge: (%s)", challenge.Serialize())
 		qrterminal.Generate(challenge.Serialize(), qrterminal.L, os.Stdout)
-		auth(otp)
+		auth(otp, publicID)
 		return nil
 	},
 }
@@ -78,9 +75,9 @@ func getPublicID() (string, error) {
 	return publicID, nil
 }
 
-func auth(otp string) {
+func auth(otp string, publicID string) {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Enter OTP: ")
+	fmt.Printf("Challenge for (%s) | Response: ", publicID[0:6])
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSuffix(text, "\n")
 	if otp == text {

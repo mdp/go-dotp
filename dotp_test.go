@@ -35,6 +35,6 @@ func TestCreateChallenge(t *testing.T) {
 	if err != nil {
 		t.Error("Error creating Challenge: ", err)
 	}
-	challenge.Encrypt([]byte("MYOTP"), 1452759001, FakeRandReader{})
-	assert.Equal(t, challenge.Serialize(), "11KPBbA6tVpE9mLxEiGyQfKKtnnMdZPQrHevRRXKqtZ6AKZ9tFfi9CruaRSiCuqMB8g4zNc5mkkMxHRzYEwZUZfKUErUu2kca8e4pLABaZBUGVw922")
+	challenge.Encrypt([]byte("MYOTP"), FakeRandReader{})
+	assert.Equal(t, challenge.Serialize(), "12iuH5TcctjU4mjwoq9CVwLLJPToDZkkKCeCiNshmBFwZfJtvuMSFGpv2cV9zoUnXjnT49bASiw")
 }
