@@ -61,7 +61,7 @@ func GetPublicKeyFromPublicID(publicID string) (*[32]byte, error) {
 }
 
 // Encrypt the OTP into the challenge
-func (c *Challenge) Encrypt(otp []byte, rand io.Reader) error {
+func (c *Challenge) Encrypt(otp []byte) error {
 	c.otp = otp
 	nonce := new([24]byte) //0 nonce
 	c.box = box.Seal(nil, c.otp, nonce, &c.recipientPublicKey, &c.serverPrivateKey)
