@@ -42,7 +42,7 @@ a dOTP mobile application to decrypt the One Time Password
 Seed should always come from a random source.
 
 ```
-dotp generate `go run main.go generate `cat /dev/random | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1`
+dotp generate `cat /dev/random | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1`
 ```
 
 
