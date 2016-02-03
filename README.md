@@ -4,7 +4,7 @@ Libary and CLI for working with dOTP
 
 ## Install from compiled binary
 
-Coming soon
+Find the binaries at [github.com/mdp/go-dotp/releases](https://github.com/mdp/go-dotp/releases)
 
 ## Install from source
 
