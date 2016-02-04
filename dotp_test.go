@@ -7,18 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type FakeRandReader struct {
-}
-
-func (f FakeRandReader) Read(p []byte) (int, error) {
-	var j = 0
-	for index := range p {
-		p[index] = byte(j)
-		j++
-	}
-	return j, nil
-}
-
 func TestDeriveKeyPair(t *testing.T) {
 	pubKey, _ := DeriveKeyPair("TEST")
 	expectedPubKey := []byte{178, 52, 221, 72, 147, 67, 27, 234, 88, 14, 14, 203, 48, 76, 47, 15, 133, 234, 195, 29, 127, 154, 198, 193, 116, 245, 201, 225, 223, 167, 217, 119}
@@ -35,6 +23,6 @@ func TestCreateChallenge(t *testing.T) {
 	if err != nil {
 		t.Error("Error creating Challenge: ", err)
 	}
-	challenge.Encrypt([]byte("MYOTP"), FakeRandReader{})
+	challenge.Encrypt([]byte("MYOTP"))
 	assert.Equal(t, challenge.Serialize(), "12iuH5TcctjU4mjwoq9CVwLLJPToDZkkKCeCiNshmBFwZfJtvuMSFGpv2cV9zoUnXjnT49bASiw")
 }
