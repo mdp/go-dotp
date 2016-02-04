@@ -1,5 +1,7 @@
 # Go dOTP
 
+[![Build Status](https://secure.travis-ci.org/mdp/go-dotp.png)](https://travis-ci.org/mdp/go-dotp)
+
 Libary and CLI for working with dOTP
 
 ## Install from compiled binary
