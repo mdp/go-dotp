@@ -10,7 +10,7 @@ import (
 // PublicID we are working with
 var PublicID string
 
-// This represents the base command when called without any subcommands
+// RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "dotp",
 	Short: "A command line interface for dOTP",

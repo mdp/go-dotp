@@ -91,10 +91,10 @@ func auth(otp string, publicID string) {
 	text = strings.Replace(text, " ", "", -1)
 	text = strings.ToUpper(text)
 	if otp == text {
-		fmt.Println("Successful Auth\n")
+		fmt.Print("Successful Auth\n\n")
 		giveShell()
 	} else {
-		fmt.Println("Incorrect response. Have a great day!\n")
+		fmt.Print("Incorrect response. Have a great day!\n\n")
 	}
 }
 
