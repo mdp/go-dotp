@@ -57,15 +57,10 @@ var sshauthCmd = &cobra.Command{
 			giveShell()
 			return nil
 		}
-		_, privateKey, err := dotp.RandomKeyPair(rand.Reader)
+		challenge, err := dotp.CreateChallenge(otp, publicID)
 		if err != nil {
 			return err
 		}
-		challenge, err := dotp.CreateChallenge(privateKey, publicID)
-		if err != nil {
-			return err
-		}
-		challenge.Encrypt([]byte(otp))
 		fmt.Printf("\nChallenge: `%s`\n", challenge.Serialize())
 		qrterminal.Generate(challenge.Serialize(), qrterminal.L, os.Stdout)
 		auth(otp, publicID)

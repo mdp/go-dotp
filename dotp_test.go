@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/mdp/sodiumbox"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,12 +18,22 @@ func TestDeriveKeyPair(t *testing.T) {
 
 func TestCreateChallenge(t *testing.T) {
 	recipientPublic, _ := DeriveKeyPair("ClientSecret")
-	_, serverPrivateKey := DeriveKeyPair("ServerSecret")
-	recipientPubID := GetPublicID(&recipientPublic)
-	challenge, err := CreateChallenge(&serverPrivateKey, recipientPubID)
+	recipientPubID := GetPublicID(recipientPublic)
+	challenge, err := CreateChallenge("MYOTP", recipientPubID)
 	if err != nil {
 		t.Error("Error creating Challenge: ", err)
 	}
-	challenge.Encrypt([]byte("MYOTP"))
-	assert.Equal(t, challenge.Serialize(), "12iuH5TcctjU4mjwoq9CVwLLJPToDZkkKCeCiNshmBFwZfJtvuMSFGpv2cV9zoUnXjnT49bASiw")
+	assert.Equal(t, challenge.Crypted.PublicKey, recipientPublic)
+	assert.True(t, challenge.Solve("MYOTP"))
+}
+
+func TestSerializeChallenge(t *testing.T) {
+	recipientPublic, _ := DeriveKeyPair("ClientSecret")
+	challenge := Challenge{
+		Crypted: sodiumbox.Message{
+			PublicKey: recipientPublic,
+			Box:       []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+		},
+	}
+	assert.Equal(t, challenge.Serialize(), "16D6DymgNNL5TAyV")
 }

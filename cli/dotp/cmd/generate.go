@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -20,18 +19,22 @@ var generateCmd = &cobra.Command{
 	Long: `Generate a KeyPair based on a seed. If the seed is in the form of a dAuth
 	backup key, add the flag --dauth`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("Must provide a seed to build a keypair from")
+		var publicKey *[32]byte
+		var secretKey *[32]byte
+		if len(args) >= 1 {
+			seed = args[0]
+			if dAuth {
+				seed = strings.Replace(seed, " ", "", -1)
+				seed = strings.ToUpper(seed)
+			}
+			fmt.Printf("Creating key with a seed string '%s'\n", seed)
+			publicKey, secretKey = dotp.DeriveKeyPair(seed)
+		} else {
+			publicKey, secretKey, _ = dotp.GenerateKeyPair()
 		}
-		seed = args[0]
-		if dAuth {
-			seed = strings.Replace(seed, " ", "", -1)
-			seed = strings.ToUpper(seed)
-		}
-		publicKey, privateKey := dotp.DeriveKeyPair(seed)
-		recPubID := dotp.GetPublicID(&publicKey)
-		fmt.Printf("\nPublicID: %s\n", recPubID)
-		fmt.Printf("\nPrivateKey: %s\n", b58.Encode(privateKey[:]))
+		recPubID := dotp.GetPublicID(publicKey)
+		fmt.Printf("PublicID: %s\n", recPubID)
+		fmt.Printf("PrivateKey: %s\n", b58.Encode(secretKey[:]))
 		return nil
 	},
 }

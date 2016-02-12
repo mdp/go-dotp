@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"os"
@@ -21,12 +20,10 @@ var challengeCmd = &cobra.Command{
 		if len(PublicID) < 1 {
 			return errors.New("Must provide the PublicID of the recipient")
 		}
-		_, privateKey, err := dotp.RandomKeyPair(rand.Reader)
+		challenge, err := dotp.CreateChallenge(args[0], PublicID)
 		if err != nil {
 			return err
 		}
-		challenge, _ := dotp.CreateChallenge(privateKey, PublicID)
-		challenge.Encrypt([]byte(args[0]))
 		fmt.Printf("%s\n\n", challenge.Serialize())
 		qrterminal.Generate(challenge.Serialize(), qrterminal.L, os.Stdout)
 		return nil
