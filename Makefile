@@ -1,4 +1,4 @@
-all: clean realease clean
+all: clean release clean
 
 bump:
 	cd cli/dotp; goxc bump; cd ../..
