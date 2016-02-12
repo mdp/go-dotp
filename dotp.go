@@ -3,6 +3,7 @@ package dotp
 import (
 	"crypto/rand"
 	"crypto/sha512"
+	"encoding/base32"
 	"errors"
 	"strings"
 
@@ -15,6 +16,7 @@ import (
 // Challenge - our Challenge containing the OTP
 type Challenge struct {
 	OTP     string
+	Name    string
 	Crypted sodiumbox.Message
 }
 
@@ -58,13 +60,17 @@ func GetPublicKeyFromPublicID(publicID string) (*[32]byte, error) {
 	return &publicKey, nil
 }
 
-// Serialize the challenge into a base58 string
+// Serialize the challenge into a base32 uppercase string
 func (c *Challenge) Serialize() string {
 	challenge := make([]byte, 0, 1+1+len(c.Crypted.Box))
 	challenge = append(challenge, byte(0))                //Version
 	challenge = append(challenge, c.Crypted.PublicKey[0]) //First byte of recipient key
 	challenge = append(challenge, c.Crypted.Box...)       //Ciphertext
-	return b58.Encode(challenge)
+	// Base32 to UpperCase, with "=" replaced by "-"
+	// This allows us to use the smaller AlphaNumeric encoding on the QR Code
+	// vs the more wasteful 8bit string set. Would be better to just use binary
+	// encoding, but it's limited by reader support
+	return strings.Replace(strings.ToUpper(base32.StdEncoding.EncodeToString(challenge)), "=", "-", -1)
 }
 
 // Solve allows you to check if a answer matches the OTP
@@ -73,17 +79,18 @@ func (c *Challenge) Solve(answer string) bool {
 }
 
 // CreateChallenge is what it is
-func CreateChallenge(otp, recipientPubID string) (*Challenge, error) {
+func CreateChallenge(otp, name, recipientPubID string) (*Challenge, error) {
 	publicKey, err := GetPublicKeyFromPublicID(recipientPubID)
 	if err != nil {
 		return nil, err
 	}
-	msg, err := sodiumbox.Seal([]byte(otp), publicKey)
+	msg, err := sodiumbox.Seal([]byte(name+"|"+otp), publicKey)
 	if err != nil {
 		return nil, err
 	}
 	return &Challenge{
 		OTP:     otp,
+		Name:    name,
 		Crypted: *msg,
 	}, nil
 }

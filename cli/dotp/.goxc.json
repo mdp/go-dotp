@@ -3,8 +3,8 @@
 		"default",
 		"publish-github"
 	],
-        "BuildConstraints": "linux, darwin, windows",
-	"PackageVersion": "0.0.1",
+	"BuildConstraints": "linux, darwin, windows",
+	"PackageVersion": "1.0.0",
 	"TaskSettings": {
 		"publish-github": {
 			"owner": "mdp",

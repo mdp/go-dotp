@@ -10,6 +10,9 @@ import (
 // PublicID we are working with
 var PublicID string
 
+// ChallengerID is the name or id of the challenger (eg. github.com)
+var ChallengerID string
+
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "dotp",
@@ -28,4 +31,5 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().StringVar(&PublicID, "pubid", "", "PublicID of the recipient")
+	RootCmd.PersistentFlags().StringVar(&ChallengerID, "id", "", "The name/id of the challenger")
 }

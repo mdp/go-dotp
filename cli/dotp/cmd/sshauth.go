@@ -57,7 +57,7 @@ var sshauthCmd = &cobra.Command{
 			giveShell()
 			return nil
 		}
-		challenge, err := dotp.CreateChallenge(otp, publicID)
+		challenge, err := dotp.CreateChallenge(otp, ChallengerID, publicID)
 		if err != nil {
 			return err
 		}

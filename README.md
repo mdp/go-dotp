@@ -26,7 +26,7 @@ Inside of sshd_config (usually at /etc/ssh/sshd_config)
 
 ```
 Match Group twofactorusers
-  ForceCommand /location/of/bin/dotp sshauth
+  ForceCommand /location/of/bin/dotp sshauth --id='myserver.com'
 ```
 
 Users in the 'twofactorusers' group will now need to have their dOTP PublicID stored
@@ -37,7 +37,7 @@ a dOTP mobile application to decrypt the One Time Password
 
 #### Generate a challenged for a given Public ID
 
-`dotp challenge --pubid "E7jY95KejKzcXmhZct2Kvcz2QSap4vVTb89S6eKkBXuhK" myotp123`
+`dotp challenge --pubid "E7jY95KejKzcXmhZct2Kvcz2QSap4vVTb89S6eKkBXuhK" --id="myserver.com" myotp123`
 
 #### Generate a KeyPair from a seed
 

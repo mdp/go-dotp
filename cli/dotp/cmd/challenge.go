@@ -18,9 +18,12 @@ var challengeCmd = &cobra.Command{
 	for debugging.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(PublicID) < 1 {
-			return errors.New("Must provide the PublicID of the recipient")
+			return errors.New("Must provide the PublicID of the recipient. eg. '--pubid=PUBLICID'")
 		}
-		challenge, err := dotp.CreateChallenge(args[0], PublicID)
+		if len(ChallengerID) < 1 {
+			return errors.New("Must provide the challenger name. eg. '--id=github.com'")
+		}
+		challenge, err := dotp.CreateChallenge(args[0], ChallengerID, PublicID)
 		if err != nil {
 			return err
 		}
