@@ -10,7 +10,7 @@ Find the binaries at [github.com/mdp/go-dotp/releases](https://github.com/mdp/go
 
 ## Install from source
 
-#### Just the ibrary
+#### Just the library
 
 `go get github.com/mdp/go-dotp`
 
@@ -32,10 +32,10 @@ Match Group twofactorusers
 Users in the 'twofactorusers' group will now need to have their dOTP PublicID stored
 inside of $HOME/.dotp_id
 
-When they login to SSH they will be presented with a QRCode Challage which must be scanned with
+When they login to SSH they will be presented with a QRCode Challenge which must be scanned with
 a dOTP mobile application to decrypt the One Time Password
 
-#### Generate a challenged for a given Public ID
+#### Generate a challenge for a given Public ID
 
 `dotp challenge --pubid "E7jY95KejKzcXmhZct2Kvcz2QSap4vVTb89S6eKkBXuhK" --id="myserver.com" myotp123`
 
